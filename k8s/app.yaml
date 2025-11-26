@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: banco-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: banco-app-pod
+  template:
+    metadata:
+      labels:
+        app: banco-app-pod
+    spec:
+      containers:
+      - name: spring-app
+        image: bancospring-app:v1
+        # CRUCIAL: Diz pro K8s usar a imagem local que carregamos
+        imagePullPolicy: IfNotPresent 
+        ports:
+        - containerPort: 8080
+        env:
+        # Conecta no Service 'mysqldb' definido no arquivo anterior
+        - name: SPRING_DATASOURCE_URL
+          value: jdbc:mysql://mysqldb:3306/banco_java?allowPublicKeyRetrieval=true&useSSL=false
+        - name: SPRING_DATASOURCE_USERNAME
+          value: dev
+        - name: SPRING_DATASOURCE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: user-password
+        - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+          value: update
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: banco-app-service
+spec:
+  type: ClusterIP
+  selector:
+    app: banco-app-pod
+  ports:
+    - protocol: TCP
+      port: 80 # Porta interna do Cluster
+      targetPort: 8080 # Porta do Container Java

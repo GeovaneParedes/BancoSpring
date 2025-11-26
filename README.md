@@ -23,3 +23,36 @@ Você não precisa ter Java ou MySQL instalados. Apenas o **Docker**.
    ```bash
    git clone [https://github.com/GeovaneParedes/BancoSpring.git](https://github.com/GeovaneParedes/BancoSpring.git)
    cd BancoSpring
+
+## ☸️ Como Rodar no Kubernetes (Kind)
+
+Para orquestrar os microsserviços localmente simulando um ambiente de produção:
+
+### Pré-requisitos
+- [Kind](https://kind.sigs.k8s.io/)
+- [Kubectl](https://kubernetes.io/docs/tasks/tools/)
+
+### Passo a Passo
+
+1. **Crie o Cluster:**
+   ```bash
+   kind create cluster --name banco-cluster
+   ```
+2. **Carregue a imagem Docker para o Cluster:**
+
+   ```bash
+   docker build -t bancospring-app:v1 .
+   kind load docker-image bancospring-app:v1 --name banco-cluster
+   ```
+3. Faça o Deploy (Manifestos):
+
+   ```bash
+   kubectl apply -f k8s/
+   ```
+4. Acesse a Aplicação (Port-Forward):
+
+   ```bash
+   kubectl port-forward service/banco-app-service 8080:80
+   ```
+   Acesse: http://localhost:8080
+
