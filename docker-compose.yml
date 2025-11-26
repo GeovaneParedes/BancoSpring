@@ -1,0 +1,34 @@
+services:
+  # Serviço 1: O Banco de Dados
+  mysqldb:
+    image: mysql:8.0
+    container_name: banco_mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: banco_java
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_USER: dev
+      MYSQL_PASSWORD: 1234
+    ports:
+      - "3307:3306" # Mapeia a porta 3306 do container para a 3307 do seu PC (pra não conflitar com seu MySQL local)
+    volumes:
+      - mysql_data:/var/lib/mysql # Persistência: O dado sobrevive se o container morrer
+
+  # Serviço 2: Sua Aplicação Java
+  app:
+    build: .
+    container_name: banco_app
+    depends_on:
+      - mysqldb # Só inicia depois do banco
+    ports:
+      - "8080:8080"
+    environment:
+      # AQUI ESTÁ A MÁGICA DEVOPS:
+      # Sobrescrevemos o application.properties em tempo de execução
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/banco_java
+      SPRING_DATASOURCE_USERNAME: dev
+      SPRING_DATASOURCE_PASSWORD: 1234
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+volumes:
+  mysql_data:

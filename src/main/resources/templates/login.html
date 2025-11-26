@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Acesso Seguro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-dark d-flex align-items-center justify-content-center" style="height: 100vh;">
+    
+    <div class="card shadow p-4" style="width: 400px;">
+        <div class="text-center mb-4">
+            <h3>🔒 Área Restrita</h3>
+            <p class="text-muted">Confirme sua identidade</p>
+        </div>
+
+        <div th:if="${erro}" class="alert alert-danger text-center">
+            Senha Incorreta!
+        </div>
+
+        <form th:action="@{/validar-acesso}" method="post">
+            <input type="hidden" name="id" th:value="${idConta}">
+            
+            <div class="mb-3">
+                <label class="form-label">Digite a Senha da Conta</label>
+                <input type="password" name="senha" class="form-control form-control-lg text-center" placeholder="******" required autofocus>
+            </div>
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary btn-lg">Entrar</button>
+                <a href="/" class="btn btn-link text-decoration-none text-muted mt-2">Cancelar</a>
+            </div>
+        </form>
+    </div>
+
+</body>
+</html>
