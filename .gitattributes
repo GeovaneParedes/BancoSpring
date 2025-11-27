@@ -1,2 +1,13 @@
 /mvnw text eol=lf
 *.cmd text eol=crlf
+# Ignora HTML e CSS nas estatísticas de linguagem (Thymeleaf/Bootstrap)
+*.html linguist-detectable=false
+*.css linguist-detectable=false
+*.js linguist-detectable=false
+
+# Ignora scripts do Maven Wrapper
+mvnw linguist-detectable=false
+mvnw.cmd linguist-detectable=false
+
+# Força Java a ser detectado (opcional, mas bom)
+*.java linguist-detectable=true
