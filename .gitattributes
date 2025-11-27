@@ -1,13 +1,20 @@
+# --- Configuração de Fim de Linha (EOL) ---
 /mvnw text eol=lf
 *.cmd text eol=crlf
-# Ignora HTML e CSS nas estatísticas de linguagem (Thymeleaf/Bootstrap)
+
+# --- Ignorar Frontend (HTML/CSS/JS) ---
 *.html linguist-detectable=false
 *.css linguist-detectable=false
 *.js linguist-detectable=false
 
-# Ignora scripts do Maven Wrapper
+# --- Ignorar Scripts de Infraestrutura (O Pulo do Gato) ---
 mvnw linguist-detectable=false
 mvnw.cmd linguist-detectable=false
+get-docker.sh linguist-detectable=false
 
-# Força Java a ser detectado (opcional, mas bom)
+# --- Ignorar Configuração Docker (Opcional, pra limpar o cinza) ---
+Dockerfile linguist-detectable=false
+docker-compose.yml linguist-detectable=false
+
+# --- Forçar Java como Principal ---
 *.java linguist-detectable=true
