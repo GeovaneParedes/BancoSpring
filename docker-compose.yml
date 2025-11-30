@@ -10,25 +10,52 @@ services:
       MYSQL_USER: dev
       MYSQL_PASSWORD: 1234
     ports:
-      - "3307:3306" # Mapeia a porta 3306 do container para a 3307 do seu PC (pra não conflitar com seu MySQL local)
+      - "3307:3306" # Mapeia a porta 3306 do container para a 3307 do meu PC (pra não conflitar com seu MySQL local)
     volumes:
       - mysql_data:/var/lib/mysql # Persistência: O dado sobrevive se o container morrer
+    # Certifiction App updow run
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
 
-  # Serviço 2: Sua Aplicação Java
+  # Serviço 2: RabbitMQ (O Carteiro) - NOVO!
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: banco_rabbitmq
+    ports:
+      - "5672:5672"   # Porta de comunicação (AMQP)
+      - "15672:15672" # Porta do Painel Visual (Management)
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      
+  # Serviço 3: Aplicação Java sendo iniciada
   app:
     build: .
     container_name: banco_app
-    depends_on:
-      - mysqldb # Só inicia depois do banco
     ports:
       - "8080:8080"
     environment:
-      # AQUI ESTÁ A MÁGICA DEVOPS:
-      # Sobrescrevemos o application.properties em tempo de execução
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/banco_java
       SPRING_DATASOURCE_USERNAME: dev
       SPRING_DATASOURCE_PASSWORD: 1234
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      # Configuração de injecao do RabbitMQ aqui
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: user
+      SPRING_RABBITMQ_PASSWORD: password
+    depends_on:
+      mysqldb:
+        condition: service_healthy
+      rabbitmq: # O (Mensageiro) Rabbit foi incluido também!
+        condition: service_healthy
 
 volumes:
   mysql_data:
